@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Path to your minishell executable
-MINISHELL_PATH="../minishell/./minishell"
+MINISHELL_PATH=".././minishell"
 LOGFILE="error_log.txt"
 
 # Check if minishell exists and is executable

@@ -11,3 +11,8 @@ echo $OLDPWD
 
 cd ../../
 
+cd ../../
+echo $OLDPWD
+echo $PWD
+
+

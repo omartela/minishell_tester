@@ -16,3 +16,8 @@ cat
 unset PATH
 echo $PATH
 
+unset OLDPWD
+echo $OLDPWD
+
+unset PWD
+echo $PWD

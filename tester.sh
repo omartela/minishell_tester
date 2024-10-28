@@ -36,6 +36,8 @@ for COMMANDS_FILE in "$COMMANDS_DIR"/*; do
 
     echo -e "\033[1;31mProcessing file\033[0m: $COMMANDS_FILE"
 
+    PROMPT=$(echo -e "\nexit\n" | $MINISHELL_PATH 2>/dev/null | head -n 1 | sed "s/\x1B\[[0-9;]\{1,\}[A-Za-z]//g" )
+
     # Read each command from the current file and execute it
     while IFS= read -r line; do
         # Skip empty lines and comments
@@ -57,6 +59,10 @@ for COMMANDS_FILE in "$COMMANDS_DIR"/*; do
         # Run the command in minishell and capture the output, error, and exit code
         echo -n "$INPUT" | "$MINISHELL_PATH" >"$MINISHELL_OUTPUT" 2>"$MINISHELL_ERR"
         MINISHELL_EXIT_CODE=$?
+
+        # Filter out the prompt from MINISHELL_OUTPUT
+        grep -vF "$PROMPT" "$MINISHELL_OUTPUT" > "${MINISHELL_OUTPUT}_filtered"
+        mv "${MINISHELL_OUTPUT}_filtered" "$MINISHELL_OUTPUT"
 
         # Run the command in bash and capture the output, error, and exit code
         echo -n "$INPUT" | bash >"$BASH_OUTPUT" 2>"$BASH_ERR"

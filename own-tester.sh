@@ -2,6 +2,7 @@
 
 # Path to your minishell executable
 MINISHELL_PATH="../minishell/./minishell"
+LOGFILE="error_log.txt"
 
 # Check if minishell exists and is executable
 if [ ! -x "$MINISHELL_PATH" ]; then
@@ -20,6 +21,10 @@ fi
 
 # Track commands with output, exit code, or both differences
 DIFFERENT_COMMANDS=()
+
+# Clear or create the logfile
+echo "Failure Log for $(date)" > "$LOGFILE"
+echo "=============================" >> "$LOGFILE"
 
 # Loop through each file in the cmds/mand directory
 for COMMANDS_FILE in "$COMMANDS_DIR"/*; do
@@ -57,27 +62,37 @@ for COMMANDS_FILE in "$COMMANDS_DIR"/*; do
         echo -n "$INPUT" | bash >"$BASH_OUTPUT" 2>"$BASH_ERR"
         BASH_EXIT_CODE=$?
 
+        FAILED_TEST=0
+
         # Compare standard output
         echo -ne "\033[1;34mSTD_OUT:\033[m "
         if ! diff -q "$MINISHELL_OUTPUT" "$BASH_OUTPUT" >/dev/null; then
             echo -ne "❌  "
-            ((TEST_KO_OUT++))
             ((FAILED++))
+            FAILED_TEST=1
+            echo -e "STDOUT difference for command:\n$INPUT\n" >> "$LOGFILE"
+            echo "Expected (Bash):" >> "$LOGFILE"
+            cat "$BASH_OUTPUT" >> "$LOGFILE"
+            echo -e "\nGot (Minishell):" >> "$LOGFILE"
+            cat "$MINISHELL_OUTPUT" >> "$LOGFILE"
+            echo -e "\n---\n" >> "$LOGFILE"
         else
             echo -ne "✅  "
             ((TEST_OK++))
         fi
 
-        # Compare standard error, checking for empty output specifically
+        # Compare standard error
         echo -ne "\033[1;33mSTD_ERR:\033[m "
-        if [[ -s "$MINISHELL_ERR" && ! -s "$BASH_ERR" ]] || [[ ! -s "$MINISHELL_ERR" && -s "$BASH_ERR" ]]; then
+        if [[ -s "$MINISHELL_ERR" && ! -s "$BASH_ERR" ]] || [[ ! -s "$MINISHELL_ERR" && -s "$BASH_ERR" ]] || ! diff -q "$MINISHELL_ERR" "$BASH_ERR" >/dev/null; then
             echo -ne "❌  "
-            ((TEST_KO_ERR++))
             ((FAILED++))
-        elif ! diff -q "$MINISHELL_ERR" "$BASH_ERR" >/dev/null; then
-            echo -ne "❌  "
-            ((TEST_KO_ERR++))
-            ((FAILED++))
+            FAILED_TEST=1
+            echo -e "STDERR difference for command:\n$INPUT\n" >> "$LOGFILE"
+            echo "Expected (Bash):" >> "$LOGFILE"
+            cat "$BASH_ERR" >> "$LOGFILE"
+            echo -e "\nGot (Minishell):" >> "$LOGFILE"
+            cat "$MINISHELL_ERR" >> "$LOGFILE"
+            echo -e "\n---\n" >> "$LOGFILE"
         else
             echo -ne "✅  "
             ((TEST_OK++))
@@ -87,11 +102,19 @@ for COMMANDS_FILE in "$COMMANDS_DIR"/*; do
         echo -ne "\033[1;36mEXIT_CODE:\033[m "
         if [[ $MINISHELL_EXIT_CODE -ne $BASH_EXIT_CODE ]]; then
             echo -ne "❌ \033[1;31m[minishell($MINISHELL_EXIT_CODE) bash($BASH_EXIT_CODE)]\033[m  "
-            ((TEST_KO_EXIT++))
             ((FAILED++))
+            FAILED_TEST=1
+            echo -e "EXIT CODE difference for command:\n$INPUT\nExpected: $BASH_EXIT_CODE, Got: $MINISHELL_EXIT_CODE\n" >> "$LOGFILE"
+            echo -e "\n---\n" >> "$LOGFILE"
         else
             echo -ne "✅  "
             ((TEST_OK++))
+        fi
+
+        # Log the command if any test failed
+        if (( FAILED_TEST )); then
+            echo -e "Failed Command:\n$INPUT\n" >> "$LOGFILE"
+            echo "=============================" >> "$LOGFILE"
         fi
 
         # Clean up temporary files
@@ -106,3 +129,4 @@ done
 # Summary Report
 echo -e "\n\033[1;32mTesting Complete\033[m"
 echo "Total Tests: $((TEST_OK + FAILED)) | Passed: $TEST_OK | Failed: $FAILED"
+echo "Failures logged to $LOGFILE"

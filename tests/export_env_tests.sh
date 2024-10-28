@@ -1,8 +1,8 @@
 export aa
-export
+env | grep aa
 
 export bb
-export
+env | grep bb
 
 export cc
 export
@@ -10,7 +10,7 @@ export
 export test
 export
 export test=aa
-
+export
 
 export wait=aa
 export
@@ -18,13 +18,14 @@ export wait+=aa
 export
 
 export wait
-env
+export
 
 export wait=aa
-env
+export
 
-export wait+=aa
-env
+export wait=first
+export wait+=second
+export
 
 export wait-=aa
 export

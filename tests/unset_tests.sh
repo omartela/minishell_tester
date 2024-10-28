@@ -1,11 +1,14 @@
 unset HOME
 cd ~
 
+unset HOME
+cd
+
 unset PATH
 ls
 
 unset PATH
-env
+echo aa
 
 unset PATH
 cat

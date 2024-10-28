@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Path to your minishell executable
-MINISHELL_PATH=".././minishell"
+MINISHELL_PATH="../minishell/./minishell"
 
 # Check if minishell exists and is executable
 if [ ! -x "$MINISHELL_PATH" ]; then
@@ -10,7 +10,7 @@ if [ ! -x "$MINISHELL_PATH" ]; then
 fi
 
 # Base directory for command files
-COMMANDS_DIR=~/tests
+COMMANDS_DIR=./tests
 
 # Check if the command directory exists
 if [ ! -d "$COMMANDS_DIR" ]; then

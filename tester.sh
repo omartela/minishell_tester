@@ -81,15 +81,18 @@ for COMMANDS_FILE in "$COMMANDS_DIR"/*; do
             ((TEST_OK++))
         fi
 
+         # Strip the "bash: line X:" prefix in the Bash stderr output before comparison
+        sed 's/^bash: line [0-9]\+: //' "$BASH_ERR" >"${BASH_ERR}_stripped"
+
         # Compare standard error
         echo -ne "\033[1;33mSTD_ERR:\033[m "
-        if [[ -s "$MINISHELL_ERR" && ! -s "$BASH_ERR" ]] || [[ ! -s "$MINISHELL_ERR" && -s "$BASH_ERR" ]] || ! diff -q "$MINISHELL_ERR" "$BASH_ERR" >/dev/null; then
+        if [[ -s "$MINISHELL_ERR" && ! -s "${BASH_ERR}_stripped" ]] || [[ ! -s "$MINISHELL_ERR" && -s "${BASH_ERR}_stripped" ]] || ! diff -q "$MINISHELL_ERR" "${BASH_ERR}_stripped" >/dev/null; then
             echo -ne "❌  "
             ((FAILED++))
             FAILED_TEST=1
             echo -e "STDERR difference for command:\n$INPUT\n" >> "$LOGFILE"
             echo "Expected (Bash):" >> "$LOGFILE"
-            cat "$BASH_ERR" >> "$LOGFILE"
+            cat "${BASH_ERR}_stripped" >> "$LOGFILE"
             echo -e "\nGot (Minishell):" >> "$LOGFILE"
             cat "$MINISHELL_ERR" >> "$LOGFILE"
             echo -e "\n---\n" >> "$LOGFILE"

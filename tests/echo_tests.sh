@@ -15,12 +15,6 @@ echo $_
 
 echo asdadsda$HOME$asdadd$PATH$asdad asdad$ aasdasd$adaasd$ $adasdas
 
-echo -nnnnnnnn -n-n-n-n
+echo -n aaaaa | echo
 
-echo -n-n-n-n -n-n-n-n
-
-echo - -n -n- -n
-
-echo -- -n -n
-
-echo -nnnnnnnnnnn -nnnnnnnnnn
+echo $HOME

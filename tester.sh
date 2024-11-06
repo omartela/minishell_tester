@@ -2,7 +2,7 @@
 
 # Path to your minishell executable
 MINISHELL_PATH=".././minishell"
-LOGFILE="error_log.txt"
+LOGFILE="$(pwd)/error_log.txt"
 
 # Check if minishell exists and is executable
 if [ ! -x "$MINISHELL_PATH" ]; then
@@ -26,6 +26,7 @@ DIFFERENT_COMMANDS=()
 echo "Failure Log for $(date)" > "$LOGFILE"
 echo "=============================" >> "$LOGFILE"
 
+PROMPT=$(echo -e "\nexit\n" | $MINISHELL_PATH 2>/dev/null | head -n 1 | sed "s/\x1B\[[0-9;]\{1,\}[A-Za-z]//g" )
 # Loop through each file in the cmds/mand directory
 for COMMANDS_FILE in "$COMMANDS_DIR"/*; do
     # Check if the file is readable
@@ -35,8 +36,6 @@ for COMMANDS_FILE in "$COMMANDS_DIR"/*; do
     fi
 
     echo -e "\033[1;31mProcessing file\033[0m: $COMMANDS_FILE"
-
-    PROMPT=$(echo -e "\nexit\n" | $MINISHELL_PATH 2>/dev/null | head -n 1 | sed "s/\x1B\[[0-9;]\{1,\}[A-Za-z]//g" )
 
     # Read each command from the current file and execute it
     while IFS= read -r line; do
